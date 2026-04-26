@@ -23,36 +23,15 @@
             position: relative;
         }
 
-        /* --- 浮遊エフェクトレイヤー --- */
-        #effect-layer {
-            position: absolute;
-            top: 0; left: 0; width: 100%; height: 100%;
-            pointer-events: none;
-            z-index: 5; /* 枠より後ろ、背景より前 */
-        }
-
-        .floating-text {
-            position: absolute;
-            font-weight: 900;
-            white-space: nowrap;
-            text-shadow: 0 0 8px rgba(255,255,255,0.8); /* スマホで見やすく */
-            animation: fluffyRise 1.2s ease-out forwards;
-        }
-
-        @keyframes fluffyRise {
-            0% { transform: translate(0, 0) scale(0.5); opacity: 0; filter: blur(4px); }
-            20% { opacity: 1; filter: blur(0px); }
-            100% { transform: translate(0, -50px) scale(1.2); opacity: 0; filter: blur(8px); }
-        }
-
-        /* --- メインUI --- */
+        /* --- UIパーツ --- */
         .main-title {
-            font-size: clamp(1.5rem, 8vw, 2.5rem);
+            font-size: clamp(1.5rem, 8vw, 2.5rem); /* 画面幅に合わせて伸縮 */
             margin-bottom: 10px;
             background: linear-gradient(to bottom, #fff 0%, #4fc3f7 50%, #1565c0 100%);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
             font-weight: 900;
+            text-align: center;
             z-index: 10;
         }
 
@@ -60,14 +39,17 @@
             font-size: 0.85rem;
             color: #b3e5fc;
             margin-bottom: 20px;
+            min-height: 1.2rem;
             z-index: 10;
+            text-align: center;
         }
 
         .display-container {
             position: relative;
             width: 85%;
             max-width: 500px;
-            min-height: 180px;
+            /* 高さを固定せず、中身に合わせる */
+            min-height: 200px;
             background: rgba(0, 0, 0, 0.7);
             border: 2px solid #4fc3f7;
             box-shadow: 0 0 20px rgba(79, 195, 247, 0.4);
@@ -75,19 +57,21 @@
             display: flex;
             align-items: center;
             justify-content: center;
+            z-index: 10;
             padding: 20px;
             box-sizing: border-box;
-            z-index: 10;
-            backdrop-filter: blur(4px);
         }
 
         #result {
+            /* ★最重要：文字がはみ出さない魔法の1行 */
             font-size: min(6.5vw, 2.2rem); 
             line-height: 1.5;
             text-align: center;
             color: #81d4fa;
             font-weight: 900;
+            word-break: break-all; /* どこでも改行を許可 */
             overflow-wrap: anywhere;
+            width: 100%;
         }
 
         .decided {
@@ -95,12 +79,9 @@
             background: linear-gradient(to bottom, #fff 0%, #ffeb3b 40%, #f57c00 100%);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
+            /* 決定時は少し大きく、でもはみ出さない範囲で */
             font-size: min(8vw, 2.8rem) !important;
-        }
-
-        @keyframes magicAwaken {
-            0% { transform: scale(0.5); }
-            100% { transform: scale(1); }
+            filter: drop-shadow(0 0 15px rgba(255, 235, 59, 0.6));
         }
 
         #drawBtn {
@@ -114,9 +95,12 @@
             cursor: pointer;
             z-index: 10;
             border-radius: 50px;
+            transition: 0.2s;
         }
 
-        /* カットイン */
+        #drawBtn:active { transform: scale(0.95); }
+
+        /* --- 演出用レイヤー --- */
         #cut-in {
             position: fixed;
             top: 50%; left: 50%;
@@ -129,12 +113,25 @@
         }
         #cut-in.active { height: 100px; visibility: visible; transition: height 0.2s; }
         #cut-in-text { font-size: 2rem; font-weight: 900; color: #fff; letter-spacing: 0.3rem; }
+
+        @keyframes magicAwaken {
+            0% { transform: scale(0.5); opacity: 0; }
+            100% { transform: scale(1); opacity: 1; }
+        }
+
+        .floating-text {
+            position: absolute; font-size: 0.9rem; pointer-events: none;
+            animation: fadeUp 1s ease-out forwards; z-index: 5;
+        }
+        @keyframes fadeUp { 0% { opacity: 0; transform: translateY(0); } 100% { opacity: 0; transform: translateY(-40px); } }
+        
+        .shake { animation: shake 0.3s ease-in-out; }
+        @keyframes shake { 0%, 100% { transform: translateX(0); } 25% { transform: translateX(-5px); } 75% { transform: translateX(5px); } }
     </style>
 </head>
 <body>
 
     <div id="effect-layer"></div>
-
     <div id="cut-in"><div id="cut-in-text">見えた…！</div></div>
 
     <div class="main-title">運命の配属占い</div>
@@ -166,27 +163,6 @@
             "エンターテインメントビジネス・センター"
         ];
 
-        let effectTimer;
-
-        // スマホでも見える位置に文字を出す関数
-        function spawnText() {
-            const container = document.getElementById('effect-layer');
-            const words = ["わくわく", "どきどき", "…っ！", "ドキドキ", "どこだ…", "頼む…！"];
-            const span = document.createElement('span');
-            span.innerText = words[Math.floor(Math.random() * words.length)];
-            span.className = 'floating-text';
-            
-            // 出現位置を中央付近に制限（20%〜80%の間）
-            span.style.left = (20 + Math.random() * 60) + '%';
-            span.style.top = (30 + Math.random() * 40) + '%';
-            
-            span.style.color = span.innerText.includes("どき") ? "#ff80ab" : "#4fc3f7";
-            span.style.fontSize = (1.0 + Math.random() * 0.5) + 'rem';
-            
-            container.appendChild(span);
-            setTimeout(() => span.remove(), 1200);
-        }
-
         function runFortuneTelling() {
             const resultDiv = document.getElementById("result");
             const btn = document.getElementById("drawBtn");
@@ -196,35 +172,34 @@
             resultDiv.classList.remove("decided");
             document.getElementById("incantation").innerText = "可能性が一点に集約していく...";
 
-            // 文字を出す演出開始
-            effectTimer = setInterval(spawnText, 150);
-
             let startTime = Date.now();
             const timer = setInterval(() => {
                 const elapsed = Date.now() - startTime;
                 resultDiv.innerText = departments[Math.floor(Math.random() * departments.length)].replace('\n', '');
 
-                if (elapsed >= 2200) {
+                if (elapsed >= 2000) {
                     clearInterval(timer);
-                    clearInterval(effectTimer); // 演出終了
-                    
                     cutIn.classList.add("active");
 
                     setTimeout(() => {
                         cutIn.classList.remove("active");
+                        document.body.classList.add("shake");
                         
                         const final = departments[Math.floor(Math.random() * departments.length)];
                         resultDiv.innerText = final;
                         resultDiv.classList.add("decided");
                         document.getElementById("incantation").innerText = "── 運命が決した ──";
                         
-                        confetti({ particleCount: 120, spread: 70, origin: { y: 0.7 } });
+                        confetti({ particleCount: 100, spread: 70, origin: { y: 0.6 } });
 
-                        btn.disabled = false;
-                        btn.innerText = "運命を塗り替える";
+                        setTimeout(() => {
+                            document.body.classList.remove("shake");
+                            btn.disabled = false;
+                            btn.innerText = "もう一度占う";
+                        }, 500);
                     }, 800);
                 }
-            }, 80);
+            }, 70);
         }
     </script>
 </body>
