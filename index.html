@@ -32,7 +32,7 @@
             75% { transform: translateX(-5px) translateY(5px); }
         }
 
-        /* --- カットイン演出（修正：初期状態を完全に見えなくする） --- */
+        /* --- カットイン演出 --- */
         #cut-in {
             position: fixed;
             top: 50%; left: 50%;
@@ -46,7 +46,6 @@
             z-index: 200;
             overflow: hidden;
             pointer-events: none;
-            /* 初期状態では境界線も透明に */
             border-top: 2px solid transparent;
             border-bottom: 2px solid transparent;
             opacity: 0;
