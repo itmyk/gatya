@@ -3,114 +3,251 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>部署ガチャ 2026</title>
+    <title>運命の配属占い - 極 -</title>
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
     <style>
-        :root {
-            --primary-color: #ff3e81;
-            --bg-color: #1a1a2e;
-        }
+        @import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@700&family=Noto+Serif+JP:wght@700;900&display=swap');
 
         body {
-            background-color: var(--bg-color);
-            color: white;
-            font-family: 'Helvetica Neue', Arial, sans-serif;
+            background-color: #010307;
+            color: #e0e0e0;
+            font-family: 'Noto Serif JP', serif;
+            margin: 0;
+            height: 100vh;
             display: flex;
             flex-direction: column;
             align-items: center;
             justify-content: center;
-            height: 100vh;
-            margin: 0;
             overflow: hidden;
-        }
-
-        h1 {
-            font-weight: 300;
-            letter-spacing: 2px;
-            margin-bottom: 30px;
-            color: #bdc3c7;
-        }
-
-        .card {
-            background: rgba(255, 255, 255, 0.05);
-            padding: 40px;
-            border-radius: 20px;
-            box-shadow: 0 15px 35px rgba(0,0,0,0.5);
-            border: 1px solid rgba(255,255,255,0.1);
-            width: 80%;
-            max-width: 600px;
-            text-align: center;
             position: relative;
+        }
+
+        /* --- 厳かな背景演出（魔法陣） --- */
+        .magic-bg-circle {
+            position: absolute;
+            width: 800px;
+            height: 800px;
+            border: 1px solid rgba(79, 195, 247, 0.15);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            animation: rotateCircle 40s linear infinite;
+            z-index: -1;
+        }
+        .magic-bg-circle::before {
+            content: "";
+            position: absolute;
+            width: 90%; height: 90%;
+            border: 2px dashed rgba(79, 195, 247, 0.1);
+            border-radius: 50%;
+        }
+
+        @keyframes rotateCircle {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+
+        /* 深淵のグラデーション */
+        body::before {
+            content: "";
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: radial-gradient(circle at center, #0d1b3e 0%, #010307 80%);
+            z-index: -2;
+        }
+
+        /* 周辺減光（厳かさを出す影） */
+        body::after {
+            content: "";
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: radial-gradient(circle at center, transparent 30%, rgba(0,0,0,0.9) 100%);
+            z-index: 1;
+            pointer-events: none;
+        }
+
+        /* スクリーンシェイク */
+        .shake { animation: screenShake 0.4s ease-in-out; }
+        @keyframes screenShake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-12px); }
+            50% { transform: translateX(12px); }
+            75% { transform: translateX(-6px); }
+        }
+
+        /* --- カットイン演出 --- */
+        #cut-in {
+            position: fixed;
+            top: 50%; left: 50%;
+            transform: translate(-50%, -50%);
+            width: 100%;
+            height: 0;
+            background: rgba(0, 0, 0, 0.95);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 200;
+            overflow: hidden;
+            pointer-events: none;
+            border-top: 2px solid transparent;
+            border-bottom: 2px solid transparent;
+            opacity: 0;
+            visibility: hidden;
+        }
+
+        #cut-in.active {
+            height: 200px;
+            opacity: 1;
+            visibility: visible;
+            border-top: 2px solid #ffd700; /* 金色の境界線 */
+            border-bottom: 2px solid #ffd700;
+            animation: cutInBounce 0.4s ease-out;
+        }
+
+        #cut-in-text {
+            font-size: 5rem;
+            font-weight: 900;
+            color: #fff;
+            letter-spacing: 2rem;
+            text-shadow: 0 0 20px #ffd700, 0 0 50px #ff8f00;
+            transform: skewX(-15deg);
+            opacity: 0;
+        }
+
+        #cut-in.active #cut-in-text {
+            animation: textIn 0.4s 0.1s forwards;
+        }
+
+        @keyframes cutInBounce {
+            0% { width: 0; }
+            100% { width: 100%; }
+        }
+
+        @keyframes textIn {
+            0% { transform: translate(150px, 0) skewX(-15deg); opacity: 0; }
+            100% { transform: translate(0, 0) skewX(-15deg); opacity: 1; }
+        }
+
+        /* --- UIパーツ --- */
+        .main-title {
+            font-size: 2.2rem;
+            margin-bottom: 25px;
+            background: linear-gradient(to bottom, #ffffff 0%, #b3e5fc 50%, #4fc3f7 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            font-weight: 900;
+            letter-spacing: 0.5rem;
+            z-index: 10;
+        }
+
+        .display-container {
+            position: relative;
+            width: 85%;
+            max-width: 900px;
+            height: 280px;
+            background: rgba(0, 5, 15, 0.7);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            box-shadow: 0 0 50px rgba(0,0,0,1);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 10;
         }
 
         #result {
             font-size: 2.2rem;
-            font-weight: bold;
-            min-height: 120px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            background: linear-gradient(45deg, #fff, #a5a5a5);
+            text-align: center;
+            padding: 20px;
+            color: #90caf9;
+            font-weight: 900;
+            opacity: 0.5;
+        }
+
+        .decided {
+            animation: magicAwaken 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+            background: linear-gradient(to bottom, #fff 0%, #ffd700 40%, #ff8f00 100%);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
-            text-shadow: 0 10px 20px rgba(0,0,0,0.3);
-            line-height: 1.4;
+            font-size: 3.8rem !important;
+            filter: drop-shadow(0 0 30px rgba(255, 215, 0, 0.5));
+            opacity: 1 !important;
         }
 
-        .highlight {
-            background: linear-gradient(45deg, #f093fb 0%, #f5576c 100%) !important;
-            -webkit-background-clip: text !important;
-            -webkit-text-fill-color: transparent !important;
-            transform: scale(1.1);
-            transition: 0.3s ease;
+        @keyframes magicAwaken {
+            0% { transform: scale(0.5); filter: brightness(5); }
+            100% { transform: scale(1); filter: brightness(1); }
         }
 
-        button {
-            margin-top: 40px;
-            background: linear-gradient(45deg, var(--primary-color), #bc2e5d);
-            border: none;
-            padding: 15px 40px;
-            color: white;
-            font-size: 1.1rem;
-            border-radius: 50px;
+        #drawBtn {
+            margin-top: 50px;
+            background: transparent;
+            color: #ffd700;
+            border: 1px solid #ffd700;
+            padding: 18px 50px;
+            font-size: 1.2rem;
+            font-weight: 900;
             cursor: pointer;
-            transition: all 0.3s;
-            box-shadow: 0 4px 15px rgba(255, 62, 129, 0.4);
-            font-weight: bold;
+            transition: all 0.4s;
+            z-index: 10;
+            letter-spacing: 0.3rem;
         }
 
-        button:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 6px 20px rgba(255, 62, 129, 0.6);
+        #drawBtn:hover:not(:disabled) {
+            background: rgba(255, 215, 0, 0.1);
+            box-shadow: 0 0 40px rgba(255, 215, 0, 0.2);
+            transform: scale(1.05);
         }
 
-        button:active {
-            transform: translateY(0);
-        }
+        #drawBtn:disabled { opacity: 0.3; cursor: default; }
 
-        /* 決定時のキラキラ演出用 */
-        .sparkle {
+        /* 消える「心の声」 */
+        .floating-text {
             position: absolute;
-            background: white;
-            border-radius: 50%;
+            font-weight: 900;
             pointer-events: none;
-            animation: fly 0.6s transparent;
+            z-index: 5;
+            animation: fluffyFade 1.6s ease-out forwards;
         }
 
-        @keyframes fly {
-            0% { transform: scale(1); opacity: 1; }
-            100% { transform: scale(0); opacity: 0; }
+        @keyframes fluffyFade {
+            0% { transform: translateY(0) scale(0.8); opacity: 0; filter: blur(10px); }
+            40% { transform: translateY(-20px) scale(1); opacity: 0.6; filter: blur(0px); }
+            100% { transform: translateY(-50px) scale(1.3); opacity: 0; filter: blur(15px); }
+        }
+
+        .flash {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: #fff;
+            opacity: 0;
+            pointer-events: none;
+            z-index: 300;
+        }
+        .flash-anim { animation: flashEffect 0.5s ease-out; }
+        @keyframes flashEffect {
+            0% { opacity: 1; }
+            100% { opacity: 0; }
         }
     </style>
 </head>
 <body>
 
-    <h1>DESTINY DRAW</h1>
-    
-    <div class="card">
-        <div id="result">Ready...</div>
+    <div class="magic-bg-circle"></div>
+    <div id="effect-layer"></div>
+    <div class="flash" id="flash-effect"></div>
+
+    <div id="cut-in">
+        <div id="cut-in-text">見えた…！</div>
     </div>
 
-    <button onclick="draw()">運命を引く</button>
+    <div class="main-title">運命の配属占い</div>
+    
+    <div class="display-container" id="container">
+        <div id="result">── 刻を待て ──</div>
+    </div>
+
+    <button id="drawBtn" onclick="runFortuneTelling()">運命の扉を開く</button>
 
     <script>
         const departments = [
@@ -132,57 +269,82 @@
             "エンターテインメントビジネス・センター"
         ];
 
-        function draw() {
-            const resultDiv = document.getElementById("result");
-            const btn = document.querySelector("button");
-            btn.disabled = true;
-            resultDiv.classList.remove("highlight");
+        let effectTimer;
 
-            let count = 0;
-            const shuffleInterval = setInterval(() => {
-                // シャッフル中
-                resultDiv.innerText = departments[Math.floor(Math.random() * departments.length)];
-                count++;
-
-                if (count > 20) {
-                    clearInterval(shuffleInterval);
-                    // 最終結果
-                    const final = departments[Math.floor(Math.random() * departments.length)];
-                    resultDiv.innerText = final;
-                    resultDiv.classList.add("highlight");
-                    btn.disabled = false;
-                    createSparkles();
-                }
-            }, 50);
+        function spawnText() {
+            const container = document.getElementById('effect-layer');
+            const words = ["わくわく", "どきどき", "…っ！", "どこだ…", "頼む…！", "静まれ…"];
+            const span = document.createElement('span');
+            span.innerText = words[Math.floor(Math.random() * words.length)];
+            span.className = 'floating-text';
+            span.style.left = (15 + Math.random() * 70) + '%';
+            span.style.top = (20 + Math.random() * 60) + '%';
+            span.style.color = span.innerText.includes("頼む") ? "#ffd700" : "#4fc3f7";
+            span.style.fontSize = (Math.random() * 1.5 + 1.2) + 'rem';
+            container.appendChild(span);
+            setTimeout(() => span.remove(), 1600);
         }
 
-        function createSparkles() {
-            const card = document.querySelector('.card');
-            for(let i=0; i<30; i++) {
-                const s = document.createElement('div');
-                s.style.position = 'absolute';
-                s.style.width = '5px';
-                s.style.height = '5px';
-                s.style.background = `hsl(${Math.random()*360}, 100%, 70%)`;
-                s.style.left = '50%';
-                s.style.top = '50%';
-                s.style.borderRadius = '50%';
-                card.appendChild(s);
+        function runFortuneTelling() {
+            const resultDiv = document.getElementById("result");
+            const btn = document.getElementById("drawBtn");
+            const flash = document.getElementById("flash-effect");
+            const cutIn = document.getElementById("cut-in");
+            
+            btn.disabled = true;
+            resultDiv.classList.remove("decided");
+            resultDiv.style.opacity = "1";
 
-                const angle = Math.random() * Math.PI * 2;
-                const dist = 100 + Math.random() * 150;
+            effectTimer = setInterval(spawnText, 120);
+
+            let duration = 3000; 
+            let startTime = Date.now();
+
+            const timer = setInterval(() => {
+                const elapsed = Date.now() - startTime;
+                resultDiv.innerText = departments[Math.floor(Math.random() * departments.length)];
+
+                if (elapsed >= duration) {
+                    clearInterval(timer);
+                    clearInterval(effectTimer); 
+                    
+                    // カットイン発動
+                    cutIn.classList.add("active");
+
+                    setTimeout(() => {
+                        cutIn.classList.remove("active");
+                        
+                        // 決定時の衝撃
+                        flash.classList.add("flash-anim");
+                        document.body.classList.add("shake");
+
+                        finalize();
+
+                        setTimeout(() => {
+                            flash.classList.remove("flash-anim");
+                            document.body.classList.remove("shake");
+                        }, 800);
+                    }, 800);
+                }
+            }, 80);
+
+            function finalize() {
+                const finalChoice = departments[Math.floor(Math.random() * departments.length)];
+                resultDiv.innerText = finalChoice;
+                resultDiv.classList.add("decided");
                 
-                s.animate([
-                    { transform: 'translate(-50%, -50%) scale(1)', opacity: 1 },
-                    { transform: `translate(${Math.cos(angle)*dist}px, ${Math.sin(angle)*dist}px) scale(0)`, opacity: 0 }
-                ], { duration: 800, easing: 'ease-out' });
+                btn.innerText = "運命を再構築する";
+                btn.disabled = false;
 
-                setTimeout(() => s.remove(), 800);
+                // 豪華な紙吹雪（ゴールド＆シルバー系）
+                confetti({
+                    particleCount: 200,
+                    spread: 90,
+                    origin: { y: 0.6 },
+                    colors: ['#ffd700', '#ffffff', '#ff8f00']
+                });
             }
         }
-
-        // 初回起動
-        window.onload = draw;
     </script>
 </body>
 </html>
