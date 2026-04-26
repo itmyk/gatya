@@ -2,19 +2,17 @@
 <html lang="ja">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>運命の配属占い</title>
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@700&family=Noto+Serif+JP:wght@700;900&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Noto+Serif+JP:wght@700;900&display=swap');
 
         body {
             background-color: #050a15;
             color: #e0e0e0;
             font-family: 'Noto Serif JP', serif;
             margin: 0;
-            height: 100vh;
-            /* iOSの高さ100vh問題対策 */
             height: 100dvh;
             display: flex;
             flex-direction: column;
@@ -25,143 +23,55 @@
             position: relative;
         }
 
-        /* スクリーンシェイク */
-        .shake { animation: screenShake 0.4s ease-in-out; }
-        @keyframes screenShake {
-            0%, 100% { transform: translateX(0); }
-            25% { transform: translateX(-5px) translateY(2px); }
-            50% { transform: translateX(5px) translateY(-2px); }
-            75% { transform: translateX(-2px) translateY(2px); }
-        }
-
-        /* --- カットイン演出 --- */
-        #cut-in {
-            position: fixed;
-            top: 50%; left: 50%;
-            transform: translate(-50%, -50%);
-            width: 100%;
-            height: 0;
-            background: rgba(0, 0, 0, 0.95);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            z-index: 200;
-            overflow: hidden;
-            pointer-events: none;
-            border-top: 2px solid transparent;
-            border-bottom: 2px solid transparent;
-            opacity: 0;
-            visibility: hidden;
-            transition: height 0.2s ease, opacity 0.1s ease;
-        }
-
-        #cut-in.active {
-            height: 120px; /* スマホ向けに少し低く */
-            opacity: 1;
-            visibility: visible;
-            border-top: 2px solid #4fc3f7;
-            border-bottom: 2px solid #4fc3f7;
-            animation: cutInBounce 0.4s ease-out;
-        }
-
-        #cut-in-text {
-            font-size: 2.5rem; /* スマホサイズ */
-            font-weight: 900;
-            color: #fff;
-            letter-spacing: 0.5rem; /* スマホでは間隔を狭く */
-            text-shadow: 0 0 20px #4fc3f7, 0 0 40px #1a237e;
-            transform: skewX(-20deg);
-            opacity: 0;
-            white-space: nowrap;
-        }
-
-        @media (min-width: 768px) {
-            #cut-in.active { height: 180px; }
-            #cut-in-text { font-size: 4rem; letter-spacing: 1.5rem; }
-        }
-
-        #cut-in.active #cut-in-text {
-            animation: textIn 0.4s 0.1s forwards;
-        }
-
-        @keyframes cutInBounce {
-            0% { width: 0; }
-            50% { width: 120%; }
-            100% { width: 100%; }
-        }
-
-        @keyframes textIn {
-            0% { transform: translate(100px, 0) skewX(-20deg); opacity: 0; }
-            100% { transform: translate(0, 0) skewX(-20deg); opacity: 1; }
-        }
-
         /* --- UIパーツ --- */
         .main-title {
-            font-size: 1.8rem;
+            font-size: clamp(1.5rem, 8vw, 2.5rem); /* 画面幅に合わせて伸縮 */
             margin-bottom: 10px;
             background: linear-gradient(to bottom, #fff 0%, #4fc3f7 50%, #1565c0 100%);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
             font-weight: 900;
-            filter: drop-shadow(0 0 15px rgba(79, 195, 247, 0.5));
+            text-align: center;
             z-index: 10;
         }
 
         #incantation {
-            font-size: 0.9rem;
+            font-size: 0.85rem;
             color: #b3e5fc;
-            min-height: 1.2rem;
             margin-bottom: 20px;
-            font-style: italic;
-            opacity: 0.7;
+            min-height: 1.2rem;
             z-index: 10;
             text-align: center;
-            padding: 0 10px;
         }
 
         .display-container {
             position: relative;
-            width: 90%; /* スマホ向けに幅を広く */
-            max-width: 600px;
-            min-height: 180px; /* 高さを可変に */
-            background: rgba(0, 0, 0, 0.6);
+            width: 85%;
+            max-width: 500px;
+            /* 高さを固定せず、中身に合わせる */
+            min-height: 200px;
+            background: rgba(0, 0, 0, 0.7);
             border: 2px solid #4fc3f7;
-            box-shadow: 0 0 20px rgba(79, 195, 247, 0.4), inset 0 0 30px rgba(0, 188, 212, 0.2);
-            border-radius: 8px;
+            box-shadow: 0 0 20px rgba(79, 195, 247, 0.4);
+            border-radius: 12px;
             display: flex;
             align-items: center;
             justify-content: center;
-            overflow: hidden;
-            backdrop-filter: blur(5px);
             z-index: 10;
             padding: 20px;
             box-sizing: border-box;
         }
 
-        .magic-circle {
-            position: absolute;
-            width: 0; height: 0;
-            border: 2px solid #fff;
-            border-radius: 50%;
-            opacity: 0;
-            z-index: 5;
-            pointer-events: none;
-        }
-        .magic-circle-anim { animation: circleExpand 0.8s ease-out forwards; }
-
-        @keyframes circleExpand {
-            0% { width: 0; height: 0; opacity: 1; border-width: 10px; }
-            100% { width: 800px; height: 800px; opacity: 0; border-width: 1px; }
-        }
-
         #result {
-            font-size: 1.4rem; /* 長い局名対策 */
+            /* ★最重要：文字がはみ出さない魔法の1行 */
+            font-size: min(6.5vw, 2.2rem); 
+            line-height: 1.5;
             text-align: center;
             color: #81d4fa;
             font-weight: 900;
-            text-shadow: 0 0 10px rgba(129, 212, 250, 0.5);
-            word-break: break-all;
-            line-height: 1.4;
+            word-break: break-all; /* どこでも改行を許可 */
+            overflow-wrap: anywhere;
+            width: 100%;
         }
 
         .decided {
@@ -169,20 +79,9 @@
             background: linear-gradient(to bottom, #fff 0%, #ffeb3b 40%, #f57c00 100%);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
-            font-size: 1.8rem !important; /* スマホでの決定時サイズ */
-            filter: drop-shadow(0 0 20px rgba(255, 235, 59, 0.8));
-        }
-
-        @media (min-width: 768px) {
-            .main-title { font-size: 2.5rem; }
-            #result { font-size: 2.5rem; }
-            .decided { font-size: 3.5rem !important; }
-        }
-
-        @keyframes magicAwaken {
-            0% { transform: scale(0.3); filter: brightness(5) blur(10px); }
-            70% { transform: scale(1.05); filter: brightness(2) blur(0px); }
-            100% { transform: scale(1); filter: brightness(1) blur(0px); }
+            /* 決定時は少し大きく、でもはみ出さない範囲で */
+            font-size: min(8vw, 2.8rem) !important;
+            filter: drop-shadow(0 0 15px rgba(255, 235, 59, 0.6));
         }
 
         #drawBtn {
@@ -190,65 +89,55 @@
             background: transparent;
             color: #ffb74d;
             border: 2px solid #ffb74d;
-            padding: 12px 30px;
-            font-size: 1.2rem;
+            padding: 15px 30px;
+            font-size: 1.1rem;
             font-weight: 900;
             cursor: pointer;
-            transition: all 0.3s ease;
             z-index: 10;
-            border-radius: 50px; /* 丸みを持たせてモダンに */
-            -webkit-tap-highlight-color: transparent;
+            border-radius: 50px;
+            transition: 0.2s;
         }
 
-        #drawBtn:active {
-            transform: scale(0.95);
-            background: rgba(255, 183, 77, 0.2);
+        #drawBtn:active { transform: scale(0.95); }
+
+        /* --- 演出用レイヤー --- */
+        #cut-in {
+            position: fixed;
+            top: 50%; left: 50%;
+            transform: translate(-50%, -50%);
+            width: 100%; height: 0;
+            background: rgba(0, 0, 0, 0.95);
+            display: flex; align-items: center; justify-content: center;
+            z-index: 200; visibility: hidden; overflow: hidden;
+            border-top: 2px solid #4fc3f7; border-bottom: 2px solid #4fc3f7;
+        }
+        #cut-in.active { height: 100px; visibility: visible; transition: height 0.2s; }
+        #cut-in-text { font-size: 2rem; font-weight: 900; color: #fff; letter-spacing: 0.3rem; }
+
+        @keyframes magicAwaken {
+            0% { transform: scale(0.5); opacity: 0; }
+            100% { transform: scale(1); opacity: 1; }
         }
 
         .floating-text {
-            position: absolute;
-            font-weight: 900;
-            pointer-events: none;
-            z-index: 5;
-            animation: fluffyFade 1.5s ease-out forwards;
-            white-space: nowrap;
+            position: absolute; font-size: 0.9rem; pointer-events: none;
+            animation: fadeUp 1s ease-out forwards; z-index: 5;
         }
-
-        @keyframes fluffyFade {
-            0% { transform: translate(0, 0) scale(0.8) rotate(var(--initial-rotate)); opacity: 0; filter: blur(8px); }
-            30% { transform: translate(0, -10px) scale(1) rotate(var(--initial-rotate)); opacity: 0.7; filter: blur(0px); }
-            100% { transform: translate(0, -30px) scale(1.2) rotate(var(--initial-rotate)); opacity: 0; filter: blur(12px); }
-        }
-
-        .flash {
-            position: fixed;
-            top: 0; left: 0; width: 100%; height: 100%;
-            background: #fff;
-            opacity: 0;
-            pointer-events: none;
-            z-index: 300;
-        }
-        .flash-anim { animation: flashEffect 0.4s ease-out; }
-        @keyframes flashEffect {
-            0% { opacity: 0.9; }
-            100% { opacity: 0; }
-        }
+        @keyframes fadeUp { 0% { opacity: 0; transform: translateY(0); } 100% { opacity: 0; transform: translateY(-40px); } }
+        
+        .shake { animation: shake 0.3s ease-in-out; }
+        @keyframes shake { 0%, 100% { transform: translateX(0); } 25% { transform: translateX(-5px); } 75% { transform: translateX(5px); } }
     </style>
 </head>
 <body>
 
     <div id="effect-layer"></div>
-    <div class="flash" id="flash-effect"></div>
-    <div class="magic-circle" id="magic-circle"></div>
-
-    <div id="cut-in">
-        <div id="cut-in-text">見えた…！</div>
-    </div>
+    <div id="cut-in"><div id="cut-in-text">見えた…！</div></div>
 
     <div class="main-title">運命の配属占い</div>
     <div id="incantation">未来が静かに胎動している...</div>
     
-    <div class="display-container" id="container">
+    <div class="display-container">
         <div id="result">Waiting...</div>
     </div>
 
@@ -266,98 +155,51 @@
             "BXクリエイティブセンター",
             "CXクリエイティブセンター",
             "ラジオテレビ局",
-            "関西ラジオテレビ＆\nコンテンツビジネス局",
+            "関西ラジオテレビ＆コンテンツビジネス局",
             "新聞局",
             "出版ビジネスプロデュース局",
             "OOHビジネス室",
             "スポーツビジネスプロデュース局",
-            "エンタメビジネス・センター"
+            "エンターテインメントビジネス・センター"
         ];
-
-        let effectTimer;
-
-        function spawnText() {
-            const container = document.getElementById('effect-layer');
-            const words = ["わくわく", "どきどき", "…っ！", "ドキドキ", "どこだ…", "頼む…！", "そわそわ"];
-            const span = document.createElement('span');
-            span.innerText = words[Math.floor(Math.random() * words.length)];
-            span.className = 'floating-text';
-            // スマホの画面端で切れないように調整
-            span.style.left = (15 + Math.random() * 70) + '%';
-            span.style.top = (20 + Math.random() * 60) + '%';
-            span.style.setProperty('--initial-rotate', (Math.random() - 0.5) * 30 + 'deg');
-            span.style.color = span.innerText.includes("どき") || span.innerText.includes("頼む") ? "#ff80ab" : "#4fc3f7";
-            span.style.fontSize = (Math.random() * 0.8 + 1.0) + 'rem';
-            container.appendChild(span);
-            setTimeout(() => span.remove(), 1500);
-        }
 
         function runFortuneTelling() {
             const resultDiv = document.getElementById("result");
             const btn = document.getElementById("drawBtn");
-            const incant = document.getElementById("incantation");
-            const flash = document.getElementById("flash-effect");
-            const circle = document.getElementById("magic-circle");
             const cutIn = document.getElementById("cut-in");
             
             btn.disabled = true;
             resultDiv.classList.remove("decided");
-            incant.innerText = "可能性が一点に集約していく...";
+            document.getElementById("incantation").innerText = "可能性が一点に集約していく...";
 
-            effectTimer = setInterval(spawnText, 120);
-
-            let duration = 2200; 
             let startTime = Date.now();
-
             const timer = setInterval(() => {
                 const elapsed = Date.now() - startTime;
-                let randomDept = departments[Math.floor(Math.random() * departments.length)];
-                resultDiv.innerText = randomDept.replace('\n', '');
+                resultDiv.innerText = departments[Math.floor(Math.random() * departments.length)].replace('\n', '');
 
-                if (elapsed >= duration) {
+                if (elapsed >= 2000) {
                     clearInterval(timer);
-                    clearInterval(effectTimer); 
-                    
                     cutIn.classList.add("active");
 
                     setTimeout(() => {
                         cutIn.classList.remove("active");
-                        
-                        flash.classList.add("flash-anim");
                         document.body.classList.add("shake");
-                        circle.classList.add("magic-circle-anim");
-
-                        finalize();
+                        
+                        const final = departments[Math.floor(Math.random() * departments.length)];
+                        resultDiv.innerText = final;
+                        resultDiv.classList.add("decided");
+                        document.getElementById("incantation").innerText = "── 運命が決した ──";
+                        
+                        confetti({ particleCount: 100, spread: 70, origin: { y: 0.6 } });
 
                         setTimeout(() => {
-                            flash.classList.remove("flash-anim");
                             document.body.classList.remove("shake");
-                            circle.classList.remove("magic-circle-anim");
-                        }, 800);
+                            btn.disabled = false;
+                            btn.innerText = "もう一度占う";
+                        }, 500);
                     }, 800);
                 }
-            }, 80);
-
-            function finalize() {
-                const finalChoice = departments[Math.floor(Math.random() * departments.length)];
-                // 改行コードを反映させるためにinnerTextではなくinnerHTML的な処理、あるいはそのまま表示
-                resultDiv.innerText = finalChoice;
-                resultDiv.classList.add("decided");
-                
-                incant.innerText = "── 運命の導きが決した ──";
-                btn.innerText = "運命を塗り替える";
-                btn.disabled = false;
-
-                const count = 150;
-                const defaults = { origin: { y: 0.7 } };
-                function fire(ratio, opts) {
-                    confetti(Object.assign({}, defaults, opts, { particleCount: Math.floor(count * ratio) }));
-                }
-                fire(0.25, { spread: 26, startVelocity: 45 });
-                fire(0.2, { spread: 60 });
-                fire(0.35, { spread: 100, decay: 0.91, scalar: 0.8 });
-                fire(0.1, { spread: 120, startVelocity: 25, decay: 0.92, scalar: 1.2 });
-            }
+            }, 70);
         }
     </script>
 </body>
