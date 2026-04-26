@@ -2,21 +2,187 @@
 <html lang="ja">
 <head>
     <meta charset="UTF-8">
-    <title>今日の運勢占</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>部署ガチャ 2026</title>
     <style>
-        body { text-align: center; font-family: sans-serif; padding-top: 50px; }
-        #result { font-size: 3rem; font-weight: bold; color: #e74c3c; margin: 20px; }
+        :root {
+            --primary-color: #ff3e81;
+            --bg-color: #1a1a2e;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: white;
+            font-family: 'Helvetica Neue', Arial, sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            margin: 0;
+            overflow: hidden;
+        }
+
+        h1 {
+            font-weight: 300;
+            letter-spacing: 2px;
+            margin-bottom: 30px;
+            color: #bdc3c7;
+        }
+
+        .card {
+            background: rgba(255, 255, 255, 0.05);
+            padding: 40px;
+            border-radius: 20px;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.5);
+            border: 1px solid rgba(255,255,255,0.1);
+            width: 80%;
+            max-width: 600px;
+            text-align: center;
+            position: relative;
+        }
+
+        #result {
+            font-size: 2.2rem;
+            font-weight: bold;
+            min-height: 120px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: linear-gradient(45deg, #fff, #a5a5a5);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            text-shadow: 0 10px 20px rgba(0,0,0,0.3);
+            line-height: 1.4;
+        }
+
+        .highlight {
+            background: linear-gradient(45deg, #f093fb 0%, #f5576c 100%) !important;
+            -webkit-background-clip: text !important;
+            -webkit-text-fill-color: transparent !important;
+            transform: scale(1.1);
+            transition: 0.3s ease;
+        }
+
+        button {
+            margin-top: 40px;
+            background: linear-gradient(45deg, var(--primary-color), #bc2e5d);
+            border: none;
+            padding: 15px 40px;
+            color: white;
+            font-size: 1.1rem;
+            border-radius: 50px;
+            cursor: pointer;
+            transition: all 0.3s;
+            box-shadow: 0 4px 15px rgba(255, 62, 129, 0.4);
+            font-weight: bold;
+        }
+
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(255, 62, 129, 0.6);
+        }
+
+        button:active {
+            transform: translateY(0);
+        }
+
+        /* 決定時のキラキラ演出用 */
+        .sparkle {
+            position: absolute;
+            background: white;
+            border-radius: 50%;
+            pointer-events: none;
+            animation: fly 0.6s transparent;
+        }
+
+        @keyframes fly {
+            0% { transform: scale(1); opacity: 1; }
+            100% { transform: scale(0); opacity: 0; }
+        }
     </style>
 </head>
 <body>
-    <h1>あなたの今日の運勢は…</h1>
-    <div id="result">？？？</div>
-    <button onclick="location.reload()">もう一度引く</button>
+
+    <h1>DESTINY DRAW</h1>
+    
+    <div class="card">
+        <div id="result">Ready...</div>
+    </div>
+
+    <button onclick="draw()">運命を引く</button>
 
     <script>
-        const results = ["大吉", "中吉", "小吉", "吉", "末吉", "凶"];
-        const random = results[Math.floor(Math.random() * results.length)];
-        document.getElementById("result").innerText = random;
+        const departments = [
+            "マーケティング局（ビジネスプロデュース付）",
+            "ビジネストランスフォーメーション局",
+            "マーケティング局",
+            "データ・テクノロジーセンター",
+            "リテールマーケティング局",
+            "データマーケティング局",
+            "CRプランニング局",
+            "BXクリエイティブセンター",
+            "CXクリエイティブセンター",
+            "ラジオテレビ局",
+            "関西ラジオテレビ＆コンテンツビジネス局",
+            "新聞局",
+            "出版ビジネスプロデュース局",
+            "OOHビジネス室",
+            "スポーツビジネスプロデュース局",
+            "エンターテインメントビジネス・センター"
+        ];
+
+        function draw() {
+            const resultDiv = document.getElementById("result");
+            const btn = document.querySelector("button");
+            btn.disabled = true;
+            resultDiv.classList.remove("highlight");
+
+            let count = 0;
+            const shuffleInterval = setInterval(() => {
+                // シャッフル中
+                resultDiv.innerText = departments[Math.floor(Math.random() * departments.length)];
+                count++;
+
+                if (count > 20) {
+                    clearInterval(shuffleInterval);
+                    // 最終結果
+                    const final = departments[Math.floor(Math.random() * departments.length)];
+                    resultDiv.innerText = final;
+                    resultDiv.classList.add("highlight");
+                    btn.disabled = false;
+                    createSparkles();
+                }
+            }, 50);
+        }
+
+        function createSparkles() {
+            const card = document.querySelector('.card');
+            for(let i=0; i<30; i++) {
+                const s = document.createElement('div');
+                s.style.position = 'absolute';
+                s.style.width = '5px';
+                s.style.height = '5px';
+                s.style.background = `hsl(${Math.random()*360}, 100%, 70%)`;
+                s.style.left = '50%';
+                s.style.top = '50%';
+                s.style.borderRadius = '50%';
+                card.appendChild(s);
+
+                const angle = Math.random() * Math.PI * 2;
+                const dist = 100 + Math.random() * 150;
+                
+                s.animate([
+                    { transform: 'translate(-50%, -50%) scale(1)', opacity: 1 },
+                    { transform: `translate(${Math.cos(angle)*dist}px, ${Math.sin(angle)*dist}px) scale(0)`, opacity: 0 }
+                ], { duration: 800, easing: 'ease-out' });
+
+                setTimeout(() => s.remove(), 800);
+            }
+        }
+
+        // 初回起動
+        window.onload = draw;
     </script>
 </body>
 </html>
