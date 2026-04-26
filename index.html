@@ -14,6 +14,8 @@
             font-family: 'Noto Serif JP', serif;
             margin: 0;
             height: 100vh;
+            /* iOSの高さ100vh問題対策 */
+            height: 100dvh;
             display: flex;
             flex-direction: column;
             align-items: center;
@@ -27,9 +29,9 @@
         .shake { animation: screenShake 0.4s ease-in-out; }
         @keyframes screenShake {
             0%, 100% { transform: translateX(0); }
-            25% { transform: translateX(-10px) translateY(5px); }
-            50% { transform: translateX(10px) translateY(-5px); }
-            75% { transform: translateX(-5px) translateY(5px); }
+            25% { transform: translateX(-5px) translateY(2px); }
+            50% { transform: translateX(5px) translateY(-2px); }
+            75% { transform: translateX(-2px) translateY(2px); }
         }
 
         /* --- カットイン演出 --- */
@@ -54,7 +56,7 @@
         }
 
         #cut-in.active {
-            height: 180px;
+            height: 120px; /* スマホ向けに少し低く */
             opacity: 1;
             visibility: visible;
             border-top: 2px solid #4fc3f7;
@@ -63,13 +65,19 @@
         }
 
         #cut-in-text {
-            font-size: 4rem;
+            font-size: 2.5rem; /* スマホサイズ */
             font-weight: 900;
             color: #fff;
-            letter-spacing: 1.5rem;
+            letter-spacing: 0.5rem; /* スマホでは間隔を狭く */
             text-shadow: 0 0 20px #4fc3f7, 0 0 40px #1a237e;
             transform: skewX(-20deg);
             opacity: 0;
+            white-space: nowrap;
+        }
+
+        @media (min-width: 768px) {
+            #cut-in.active { height: 180px; }
+            #cut-in-text { font-size: 4rem; letter-spacing: 1.5rem; }
         }
 
         #cut-in.active #cut-in-text {
@@ -89,8 +97,8 @@
 
         /* --- UIパーツ --- */
         .main-title {
-            font-size: 2.5rem;
-            margin-bottom: 20px;
+            font-size: 1.8rem;
+            margin-bottom: 10px;
             background: linear-gradient(to bottom, #fff 0%, #4fc3f7 50%, #1565c0 100%);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
@@ -100,30 +108,34 @@
         }
 
         #incantation {
-            font-size: 1.1rem;
+            font-size: 0.9rem;
             color: #b3e5fc;
-            height: 1.5rem;
-            margin-bottom: 15px;
+            min-height: 1.2rem;
+            margin-bottom: 20px;
             font-style: italic;
             opacity: 0.7;
             z-index: 10;
+            text-align: center;
+            padding: 0 10px;
         }
 
         .display-container {
             position: relative;
-            width: 80%;
-            max-width: 800px;
-            height: 250px;
+            width: 90%; /* スマホ向けに幅を広く */
+            max-width: 600px;
+            min-height: 180px; /* 高さを可変に */
             background: rgba(0, 0, 0, 0.6);
             border: 2px solid #4fc3f7;
             box-shadow: 0 0 20px rgba(79, 195, 247, 0.4), inset 0 0 30px rgba(0, 188, 212, 0.2);
-            border-radius: 5px;
+            border-radius: 8px;
             display: flex;
             align-items: center;
             justify-content: center;
             overflow: hidden;
             backdrop-filter: blur(5px);
             z-index: 10;
+            padding: 20px;
+            box-sizing: border-box;
         }
 
         .magic-circle {
@@ -139,16 +151,17 @@
 
         @keyframes circleExpand {
             0% { width: 0; height: 0; opacity: 1; border-width: 10px; }
-            100% { width: 1000px; height: 1000px; opacity: 0; border-width: 1px; }
+            100% { width: 800px; height: 800px; opacity: 0; border-width: 1px; }
         }
 
         #result {
-            font-size: 2.5rem;
+            font-size: 1.4rem; /* 長い局名対策 */
             text-align: center;
-            padding: 20px;
             color: #81d4fa;
             font-weight: 900;
             text-shadow: 0 0 10px rgba(129, 212, 250, 0.5);
+            word-break: break-all;
+            line-height: 1.4;
         }
 
         .decided {
@@ -156,33 +169,40 @@
             background: linear-gradient(to bottom, #fff 0%, #ffeb3b 40%, #f57c00 100%);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
-            font-size: 3.5rem !important;
+            font-size: 1.8rem !important; /* スマホでの決定時サイズ */
             filter: drop-shadow(0 0 20px rgba(255, 235, 59, 0.8));
+        }
+
+        @media (min-width: 768px) {
+            .main-title { font-size: 2.5rem; }
+            #result { font-size: 2.5rem; }
+            .decided { font-size: 3.5rem !important; }
         }
 
         @keyframes magicAwaken {
             0% { transform: scale(0.3); filter: brightness(5) blur(10px); }
-            70% { transform: scale(1.1); filter: brightness(2) blur(0px); }
+            70% { transform: scale(1.05); filter: brightness(2) blur(0px); }
             100% { transform: scale(1); filter: brightness(1) blur(0px); }
         }
 
         #drawBtn {
-            margin-top: 40px;
+            margin-top: 30px;
             background: transparent;
             color: #ffb74d;
             border: 2px solid #ffb74d;
-            padding: 15px 40px;
-            font-size: 1.5rem;
+            padding: 12px 30px;
+            font-size: 1.2rem;
             font-weight: 900;
             cursor: pointer;
             transition: all 0.3s ease;
             z-index: 10;
+            border-radius: 50px; /* 丸みを持たせてモダンに */
+            -webkit-tap-highlight-color: transparent;
         }
 
-        #drawBtn:hover {
-            background: rgba(255, 183, 77, 0.1);
-            box-shadow: 0 0 30px rgba(255, 181, 77, 0.6);
-            transform: scale(1.05);
+        #drawBtn:active {
+            transform: scale(0.95);
+            background: rgba(255, 183, 77, 0.2);
         }
 
         .floating-text {
@@ -191,6 +211,7 @@
             pointer-events: none;
             z-index: 5;
             animation: fluffyFade 1.5s ease-out forwards;
+            white-space: nowrap;
         }
 
         @keyframes fluffyFade {
@@ -235,7 +256,7 @@
 
     <script>
         const departments = [
-            "マーケティング局（ビジネスプロデュース付）",
+            "マーケティング局\n（ビジネスプロデュース付）",
             "ビジネストランスフォーメーション局",
             "マーケティング局",
             "データ・テクノロジーセンター",
@@ -245,12 +266,12 @@
             "BXクリエイティブセンター",
             "CXクリエイティブセンター",
             "ラジオテレビ局",
-            "関西ラジオテレビ＆コンテンツビジネス局",
+            "関西ラジオテレビ＆\nコンテンツビジネス局",
             "新聞局",
             "出版ビジネスプロデュース局",
             "OOHビジネス室",
             "スポーツビジネスプロデュース局",
-            "エンターテインメントビジネス・センター"
+            "エンタメビジネス・センター"
         ];
 
         let effectTimer;
@@ -261,11 +282,12 @@
             const span = document.createElement('span');
             span.innerText = words[Math.floor(Math.random() * words.length)];
             span.className = 'floating-text';
-            span.style.left = (10 + Math.random() * 80) + '%';
-            span.style.top = (10 + Math.random() * 80) + '%';
-            span.style.setProperty('--initial-rotate', (Math.random() - 0.5) * 40 + 'deg');
+            // スマホの画面端で切れないように調整
+            span.style.left = (15 + Math.random() * 70) + '%';
+            span.style.top = (20 + Math.random() * 60) + '%';
+            span.style.setProperty('--initial-rotate', (Math.random() - 0.5) * 30 + 'deg');
             span.style.color = span.innerText.includes("どき") || span.innerText.includes("頼む") ? "#ff80ab" : "#4fc3f7";
-            span.style.fontSize = (Math.random() * 1.5 + 1.2) + 'rem';
+            span.style.fontSize = (Math.random() * 0.8 + 1.0) + 'rem';
             container.appendChild(span);
             setTimeout(() => span.remove(), 1500);
         }
@@ -282,20 +304,20 @@
             resultDiv.classList.remove("decided");
             incant.innerText = "可能性が一点に集約していく...";
 
-            effectTimer = setInterval(spawnText, 100);
+            effectTimer = setInterval(spawnText, 120);
 
-            let duration = 2500; 
+            let duration = 2200; 
             let startTime = Date.now();
 
             const timer = setInterval(() => {
                 const elapsed = Date.now() - startTime;
-                resultDiv.innerText = departments[Math.floor(Math.random() * departments.length)];
+                let randomDept = departments[Math.floor(Math.random() * departments.length)];
+                resultDiv.innerText = randomDept.replace('\n', '');
 
                 if (elapsed >= duration) {
                     clearInterval(timer);
                     clearInterval(effectTimer); 
                     
-                    // カットイン発動
                     cutIn.classList.add("active");
 
                     setTimeout(() => {
@@ -318,23 +340,23 @@
 
             function finalize() {
                 const finalChoice = departments[Math.floor(Math.random() * departments.length)];
+                // 改行コードを反映させるためにinnerTextではなくinnerHTML的な処理、あるいはそのまま表示
                 resultDiv.innerText = finalChoice;
                 resultDiv.classList.add("decided");
                 
                 incant.innerText = "── 運命の導きが決した ──";
-                btn.innerText = "運命を塗り替える（もう一度！）";
+                btn.innerText = "運命を塗り替える";
                 btn.disabled = false;
 
-                const count = 200;
+                const count = 150;
                 const defaults = { origin: { y: 0.7 } };
                 function fire(ratio, opts) {
                     confetti(Object.assign({}, defaults, opts, { particleCount: Math.floor(count * ratio) }));
                 }
-                fire(0.25, { spread: 26, startVelocity: 55 });
+                fire(0.25, { spread: 26, startVelocity: 45 });
                 fire(0.2, { spread: 60 });
                 fire(0.35, { spread: 100, decay: 0.91, scalar: 0.8 });
                 fire(0.1, { spread: 120, startVelocity: 25, decay: 0.92, scalar: 1.2 });
-                fire(0.1, { spread: 120, startVelocity: 45 });
             }
         }
     </script>
