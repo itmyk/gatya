@@ -54,7 +54,7 @@ transition: height 0.2s ease, opacity 0.1s ease;
 }
 
 #cut-in.active {
-height: 180px;
+height: 25vh; /* スマホ向けに高さ比率を調整 */
 opacity: 1;
 visibility: visible;
 border-top: 2px solid #4fc3f7;
@@ -63,13 +63,14 @@ animation: cutInBounce 0.4s ease-out;
 }
 
 #cut-in-text {
-font-size: 4rem;
+font-size: clamp(2rem, 8vw, 4rem); /* 画面幅に合わせて伸縮 */
 font-weight: 900;
 color: #fff;
-letter-spacing: 1.5rem;
+letter-spacing: 0.5rem;
 text-shadow: 0 0 20px #4fc3f7, 0 0 40px #1a237e;
 transform: skewX(-20deg);
 opacity: 0;
+white-space: nowrap;
 }
 
 #cut-in.active #cut-in-text {
@@ -89,31 +90,35 @@ animation: textIn 0.4s 0.1s forwards;
 
 /* --- UIパーツ --- */
 .main-title {
-font-size: 2.5rem;
-margin-bottom: 20px;
+font-size: clamp(1.5rem, 6vw, 2.5rem);
+margin-bottom: 10px;
 background: linear-gradient(to bottom, #fff 0%, #4fc3f7 50%, #1565c0 100%);
 -webkit-background-clip: text;
 -webkit-text-fill-color: transparent;
 font-weight: 900;
 filter: drop-shadow(0 0 15px rgba(79, 195, 247, 0.5));
 z-index: 10;
+text-align: center;
 }
 
 #incantation {
-font-size: 1.1rem;
+font-size: clamp(0.8rem, 3vw, 1.1rem);
 color: #b3e5fc;
 height: 1.5rem;
 margin-bottom: 15px;
 font-style: italic;
 opacity: 0.7;
 z-index: 10;
+text-align: center;
 }
 
 .display-container {
 position: relative;
-width: 80%;
+width: 90%; /* スマホ向けに幅を拡大 */
 max-width: 800px;
-height: 250px;
+min-height: 200px;
+height: auto;
+padding: 20px 10px;
 background: rgba(0, 0, 0, 0.6);
 border: 2px solid #4fc3f7;
 box-shadow: 0 0 20px rgba(79, 195, 247, 0.4), inset 0 0 30px rgba(0, 188, 212, 0.2);
@@ -143,12 +148,14 @@ pointer-events: none;
 }
 
 #result {
-font-size: 2.5rem;
+font-size: clamp(1.2rem, 5vw, 2.5rem); /* 長い部署名のためにサイズを自動調整 */
 text-align: center;
-padding: 20px;
+padding: 10px;
 color: #81d4fa;
 font-weight: 900;
 text-shadow: 0 0 10px rgba(129, 212, 250, 0.5);
+word-break: break-all; /* 折り返しを許可 */
+line-height: 1.4;
 }
 
 .decided {
@@ -156,7 +163,7 @@ animation: magicAwaken 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
 background: linear-gradient(to bottom, #fff 0%, #ffeb3b 40%, #f57c00 100%);
 -webkit-background-clip: text;
 -webkit-text-fill-color: transparent;
-font-size: 3.5rem !important;
+font-size: clamp(1.5rem, 7vw, 3.5rem) !important;
 filter: drop-shadow(0 0 20px rgba(255, 235, 59, 0.8));
 }
 
@@ -167,12 +174,12 @@ filter: drop-shadow(0 0 20px rgba(255, 235, 59, 0.8));
 }
 
 #drawBtn {
-margin-top: 40px;
+margin-top: 30px;
 background: transparent;
 color: #ffb74d;
 border: 2px solid #ffb74d;
-padding: 15px 40px;
-font-size: 1.5rem;
+padding: 12px 30px;
+font-size: clamp(1rem, 4vw, 1.5rem);
 font-weight: 900;
 cursor: pointer;
 transition: all 0.3s ease;
@@ -289,7 +296,7 @@ span.style.left = (10 + Math.random() * 80) + '%';
 span.style.top = (10 + Math.random() * 80) + '%';
 span.style.setProperty('--initial-rotate', (Math.random() - 0.5) * 40 + 'deg');
 span.style.color = span.innerText.includes("どき") || span.innerText.includes("頼む") ? "#ff80ab" : "#4fc3f7";
-span.style.fontSize = (Math.random() * 1.5 + 1.2) + 'rem';
+span.style.fontSize = (Math.random() * 1.0 + 1.0) + 'rem';
 container.appendChild(span);
 setTimeout(() => span.remove(), 1500);
 }
@@ -323,26 +330,20 @@ showFinalResult();
 }, 50);
 
 function showFinalResult() {
-// カットイン演出
 cutIn.classList.add("active");
 
 setTimeout(() => {
-// フラッシュと振動
 flash.classList.add("flash-anim");
 document.body.classList.add("shake");
-
-// 魔法陣
 circle.classList.add("magic-circle-anim");
 
-// 結果確定
 const finalDept = departments[Math.floor(Math.random() * departments.length)];
 resultDiv.innerText = finalDept;
 resultDiv.classList.add("decided");
 incant.innerText = "運命は示された。";
 
-// 紙吹雪
 confetti({
-particleCount: 150,
+particleCount: 100,
 spread: 70,
 origin: { y: 0.6 },
 colors: ['#4fc3f7', '#ffffff', '#ffeb3b']
