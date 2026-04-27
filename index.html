@@ -63,15 +63,14 @@ animation: cutInBounce 0.4s ease-out;
 }
 
 #cut-in-text {
-/* スマホで1行に収まるよう、文字間隔とサイズを調整 */
 font-size: clamp(2rem, 10vw, 4rem); 
 font-weight: 900;
 color: #fff;
-letter-spacing: 0.2rem; /* 間隔を狭めて1行を死守 */
+letter-spacing: 0.2rem;
 text-shadow: 0 0 20px #4fc3f7, 0 0 40px #1a237e;
 transform: skewX(-20deg);
 opacity: 0;
-white-space: nowrap; /* 絶対に改行させない */
+white-space: nowrap;
 }
 
 #cut-in.active #cut-in-text {
@@ -146,7 +145,6 @@ pointer-events: none;
 }
 
 #result {
-/* 部署名が長くても枠からはみ出ないよう調整 */
 font-size: clamp(1.2rem, 5vw, 2.5rem);
 text-align: center;
 padding: 15px;
@@ -323,14 +321,20 @@ resultDiv.innerText = departments[Math.floor(Math.random() * departments.length)
 if (elapsed > duration) {
 clearInterval(timer);
 clearInterval(effectTimer);
-showFinalResult();
+// 結果が出る直前にカットインを表示
+showCutIn();
 }
 }, 50);
 
-function showFinalResult() {
+function showCutIn() {
 cutIn.classList.add("active");
 
+// カットインが表示されている間に結果を準備し、一気に表示
 setTimeout(() => {
+// カットインを非表示にする
+cutIn.classList.remove("active");
+
+// 同時に結果の演出を開始
 flash.classList.add("flash-anim");
 document.body.classList.add("shake");
 circle.classList.add("magic-circle-anim");
@@ -348,13 +352,12 @@ colors: ['#4fc3f7', '#ffffff', '#ffeb3b']
 });
 
 setTimeout(() => {
-cutIn.classList.remove("active");
 flash.classList.remove("flash-anim");
 document.body.classList.remove("shake");
 circle.classList.remove("magic-circle-anim");
 btn.disabled = false;
 }, 1000);
-}, 800);
+}, 600); // 0.6秒後にカットインを消して結果を表示
 }
 }
 </script>
